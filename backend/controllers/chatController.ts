@@ -15,7 +15,7 @@ export const chatController = {
     setIO: (socketIO) => {
         io = socketIO
     },
-    
+
     getAllMessages: (): Message[] => {
         return messages
     },
@@ -24,75 +24,84 @@ export const chatController = {
         const id = idGenerator.generate()
         const timestamp = new Date().toISOString()
         const newMessage: Message = new Message(id, content, sender, timestamp)
-        
+
         messages.push(newMessage);
         return newMessage
     },
 
+    createRoom: (topic: string): Room => {
+        const id = idGenerator.generate()
+        const newRoom: Room = new Room(id, topic)
+
+        rooms.push(newRoom)
+        return newRoom
+    },
+
     handleSocketConnection: (socket: Socket): void => {
-        
-        const id = typeof socket.handshake.query.id === 'string' ? socket.handshake.query.id : socket.handshake.query.id?.toString();
-        const username = typeof socket.handshake.query.username === 'string' ? socket.handshake.query.username : socket.handshake.query.username?.toString();
-        const password = typeof socket.handshake.query.password === 'string' ? socket.handshake.query.password : socket.handshake.query.password?.toString();
+        console.log(`User connected with session: ${socket.id}`);
 
-        console.log(`User ${username} connected, with session: ${socket.id}`);
+        emitRoomsToClient(socket)  // Ponerlo más abajo, ya que de momento no hay rooms definidas
 
-        const existingUser = Array.from(users.values()).find((user) => user.name === username && user.password === password)
-        if (existingUser) {
-            existingUser.id = socket.id
-        } else if (id && username && password) {
-            const user = new User(username, password, socket.id)
-            users.set(socket.id, user)
-        } else {
-            console.log(`Invalid user data for socket ${socket.id}`);
-            socket.disconnect();
-            return;
-        }
+        socket.on("newRoom", (roomTopic) => {
+            const existingRoom = rooms.find((room) => room.topic === roomTopic)
 
-        emitRoomsToClient(socket)
+            if (!existingRoom) {
+                const newRoom = chatController.createRoom(roomTopic)
+                console.log(`New room created: ${newRoom.topic}`);
+                io.emit("roomCreated", { roomId: newRoom.id, topic: newRoom.topic })
+            } else {
+                console.log(`The room with topic ${existingRoom.topic} already exists, find another topic`);
+
+            }
+
+        })
 
         socket.on("joinRoom", (roomId) => {
             const user = getUserBySocketId(socket.id)
+            const selectedRoom = findRoomById(roomId)
 
-            if (user) {
-                const selectedRoom = findRoomById(roomId)
-                if (selectedRoom) {
-                    users.set(user.id, {...user, roomId: selectedRoom.id})
+            if (user && selectedRoom) {
+
+                if (!user.rooms?.includes(selectedRoom)) {
+                    users.set(user.id, user)
                     selectedRoom.users.push(user)
+                    user.rooms?.push(selectedRoom);
                     console.log(`User ${user.name} joined room ${selectedRoom.topic}`);
                 } else {
-                    console.log(`Room not found with id ${selectedRoom}`);
-                    socket.disconnect()
-                    return
+                    console.log(`The user ${user.name} is already in room ${selectedRoom.topic}`);
+
                 }
+
+            } else {
+                console.log(`Room not found with id ${selectedRoom}`);
+                socket.disconnect()
+                return
             }
         })
 
         socket.on(`disconnect`, () => {
             console.log(`User disconnected: ${socket.id}`);
             users.delete(socket.id)
-            
+
         })
 
         socket.on('newMessage', (data, roomId) => {
             const sender = getUserBySocketId(socket.id)
-            
-            
-            if (sender && sender.room) {
+            const selectedRoom = findRoomById(roomId)
+
+
+            if (sender && sender.rooms) {
                 const { content } = data
-                const newMessage = chatController.createMessage(content, sender)
-                io.to(user).emit("message", newMessage)
+                const newMessage = chatController.createMessage(content, sender.name)
+                io.to(selectedRoom?.id).emit("message", newMessage)
+            } else {
+                console.log(`User ${sender?.name} can't send a message without joining a room`);
+                return
             }
-            
-            // De momento he añadido una propiedad a User que sea room, aunque no sé si debe ser el ID o el topic (quizás el id)
-            // se ha de revisar si en algún momento a esta propiedad se le añade la room a la que el User se ha unido
-            // además, también deberíamos crear dentro de const chatController pero fuera de handleSocketConnection, una función que sea createRoom.
-            // por último, deberíamos acabar de hacer el evento "newMessage" mirar chat GPT
-            
         })
     },
 
-    getAllMessagesHandler: async(request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    getAllMessagesHandler: async (_request: FastifyRequest, reply: FastifyReply): Promise<void> => {
         try {
             const messages = chatController.getAllMessages();
             reply.send(messages);
@@ -101,26 +110,26 @@ export const chatController = {
         }
     },
 
-    createMessageHandler: async (request, reply): Promise<void> => {
-        const { content, sender } = request.body;
+    createMessageHandler: async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+        const { content, sender } = request.body as any;
         try {
             const newMessage = chatController.createMessage(content, sender);
             reply.send(newMessage);
         } catch (error) {
             reply.status(500).send({ error: 'Error creating message' });
         }
-    }    
+    }
 }
 
 function emitRoomsToClient(socket: Socket) {
     const roomData = rooms.map((room) => ({ id: room.id, name: room.topic }));
     socket.emit('rooms', roomData);
 }
-  
-  function getUserBySocketId(socketId: string): User | undefined {
+
+function getUserBySocketId(socketId: string): User | undefined {
     return users.get(socketId);
 }
-  
-  function findRoomById(roomId: string): Room | undefined {
+
+function findRoomById(roomId: string): Room | undefined {
     return rooms.find((room) => room.id === roomId);
 }

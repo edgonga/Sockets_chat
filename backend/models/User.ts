@@ -1,10 +1,10 @@
 import { Room } from "./Room"
 
 export class User {
-    name: string | string[] 
+    name: string 
     password: string
     id: string
-    room: Room | undefined
+    rooms: Room []
 
     constructor(name: string, password: string, id: string) {
         this.name = name

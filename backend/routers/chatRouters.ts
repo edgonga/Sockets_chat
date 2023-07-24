@@ -5,7 +5,7 @@ import { Server } from 'socket.io'
 export const chatRouters = (fastify: FastifyInstance, io: Server): void => {
     chatController.setIO(io)
     
-    fastify.get('/api/messages', chatController.createMessageHandler);
+    fastify.get('/api/messages', chatController.getAllMessagesHandler);
     fastify.post('/api/messages', chatController.createMessageHandler);
 
     //fastify.get("/api/messages", chatController.getAllMessages)
