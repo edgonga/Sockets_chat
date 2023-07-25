@@ -1,0 +1,32 @@
+.textarea-container {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center; 
+}
+
+.textarea {
+  background-color: #282c34;
+  color: #ffffff;
+  border: 1px solid #555;
+  padding: 10px;
+  width: 300px;
+  height: 30px;
+  margin-bottom: 10px; 
+}
+
+.centered {
+  margin: 0 auto;
+}
+
+.textarea-button {
+  background-color: #555;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.textarea-button:hover {
+  background-color: #777;
+}

@@ -4,5 +4,8 @@
     "fastify-socket.io": "^4.0.0",
     "socket.io": "^4.7.1",
     "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "start": "ts-node --transpile-only server/server.ts"
   }
 }

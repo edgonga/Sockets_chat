@@ -4,6 +4,7 @@
 import React, { ChangeEvent, useState } from "react";
 import "./login.css";
 import { useNavigate } from "react-router-dom";
+import ChatBox from "./Chat";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
