@@ -1,7 +1,26 @@
 .chat-box {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 140px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 8px 12px;
+  margin: 4px;
+  border-radius: 8px;
+  word-wrap: break-word;
+}
+
+.own-message {
+  background-color: #007bff;
+  color: #fff;
+  align-self: flex-end;
+}
+
+.other-message {
+  background-color: #f0f0f0;
+  color: #333;
+  align-self: flex-start;
+  
+}

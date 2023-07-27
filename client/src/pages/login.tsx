@@ -1,10 +1,7 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable */
 import React, { ChangeEvent, useState } from "react";
 import "./login.css";
 import { useNavigate } from "react-router-dom";
-import ChatBox from "./Chat";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -24,7 +21,8 @@ const LoginForm: React.FC = () => {
     event.preventDefault();
 
     try{
-      await fetch("http://localhost:5173/login", {
+      
+      await fetch("http://localhost:3000/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,8 +33,8 @@ const LoginForm: React.FC = () => {
         })
       })
       
-      console.log(`User: ${username} created`);
-      window.alert(`User ${username} created successfully.`);
+      console.log(`User: ${username} connected`);
+      window.alert(`User ${username} connected successfully.`);
       navigate("/home", { state: { username } });
     } catch (error) {
       console.error("Error: ", error);
@@ -60,7 +58,7 @@ const LoginForm: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password">Password:</label>
+          <label className="input-form" htmlFor="password">Password:</label>
           <input
             type="password"
             id="password"

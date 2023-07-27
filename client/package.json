@@ -11,15 +11,19 @@
     "start": "concurrently \"vite\" \"ts-node --transpile-only ../backend/server/server.ts\" "
   },
   "dependencies": {
+    "@fastify/cors": "^8.3.0",
     "concurrently": "^8.2.0",
+    "fastify-cors": "^6.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-modal": "^3.16.1",
     "react-router-dom": "^6.14.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
+    "@types/react-modal": "^3.16.0",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
     "@vitejs/plugin-react-swc": "^3.3.2",
