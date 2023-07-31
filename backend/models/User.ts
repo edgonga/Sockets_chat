@@ -3,7 +3,7 @@ import { Room } from "./Room"
 export class User {
     name: string 
     password: string
-    id: string
+    id: string | null
     rooms: Room []
 
     constructor(name: string, password: string, id: string) {

@@ -8,5 +8,8 @@
   },
   "scripts": {
     "start": "ts-node --transpile-only server/server.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
   }
 }

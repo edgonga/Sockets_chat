@@ -16,12 +16,16 @@ app.register(cors, {
 
 const io = new Server(app.server)
 
-// app.ready().then(() => {
-//   app.io.on("connection", (socket) => {
-//     console.log("Socket connected ", socket.id);
+app.get("/", (request, reply) => {
+  app.io.emit("Hello")
+})
+
+app.ready().then(() => {
+  app.io.on("connection", (socket) => {
+    console.log("Socket connected ", socket.id);
     
-//   })
-// })
+  })
+})
 
 // let io!: Server
 

@@ -6,7 +6,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { Room } from '../models/Room';
 
 const messages: Message[] = []
-const users: Map<string, User> = new Map()
+const users: User[] = []
 const rooms: Room[] = []
 const idGenerator = new IDGenerator()
 let io
@@ -37,7 +37,7 @@ export const chatController = {
         return newRoom
     },
 
-    handleSocketConnection: (socket: Socket): void => {
+    handleSocketConnection: (socket: Socket, socketUser: User): void => {
         console.log(`User connected with session: ${socket.id}`);
 
         emitRoomsToClient(socket)  // Ponerlo más abajo, ya que de momento no hay rooms definidas
@@ -63,7 +63,6 @@ export const chatController = {
             if (user && selectedRoom) {
 
                 if (!user.rooms?.includes(selectedRoom)) {
-                    users.set(user.id, user)
                     selectedRoom.users.push(user)
                     user.rooms?.push(selectedRoom);
                     console.log(`User ${user.name} joined room ${selectedRoom.topic}`);
@@ -81,12 +80,12 @@ export const chatController = {
 
         socket.on(`disconnect`, () => {
             console.log(`User disconnected: ${socket.id}`);
-            users.delete(socket.id)
+            setUserIDToNull(socketUser.name)
 
         })
 
         socket.on('newMessage', (data, roomId) => {
-            const sender = getUserBySocketId(socket.id)
+            const sender = getUserByName(socketUser.name)
             const selectedRoom = findRoomById(roomId)
 
 
@@ -127,9 +126,21 @@ function emitRoomsToClient(socket: Socket) {
 }
 
 function getUserBySocketId(socketId: string): User | undefined {
-    return users.get(socketId);
+    return users.find((socket) => socket.id === socketId)
+}
+
+function getUserByName(username: string): User | undefined {
+    return users.find((user) => user.name === username)
 }
 
 function findRoomById(roomId: string): Room | undefined {
     return rooms.find((room) => room.id === roomId);
+}
+
+function setUserIDToNull(username: string): void {
+    const userToUpdate = getUserByName(username)
+
+    if (userToUpdate) {
+        userToUpdate.id = null
+    }
 }

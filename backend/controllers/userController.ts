@@ -4,7 +4,7 @@ import { User } from '../models/User';
 import { IDGenerator } from '../dependencies/IDGenerator';
 import app from '../server/app';
 
-const users: Map<string, User> = new Map()
+const users: User[] = []
 const idGenerator = new IDGenerator()
 let io
 
@@ -22,7 +22,6 @@ export const userController = {
             
         } else if (username && password) {
             const user = new User(username, password, idGenerator.generate())
-            users.set(socket.id, user)
             console.log('New User added', socket.id);
             
         } else {
