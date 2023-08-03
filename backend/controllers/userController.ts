@@ -22,7 +22,7 @@ export const userController = {
             
         } else if (username && password) {
             const user = new User(username, password, idGenerator.generate())
-            console.log('New User added', socket.id);
+            console.log('New User added', socket);
             
         } else {
             console.log(`Invalid user data for socket`, );
